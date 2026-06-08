@@ -36,10 +36,22 @@ source .venv/Scripts/activate
 pip install -e ".[dev]"
 ```
 
-运行程序：
+启动 FastAPI 服务：
 
 ```bash
 app
+```
+
+服务启动后，可以访问：
+
+```text
+http://127.0.0.1:8000/
+```
+
+交互式接口文档：
+
+```text
+http://127.0.0.1:8000/docs
 ```
 
 运行测试：

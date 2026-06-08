@@ -1,0 +1,13 @@
+.page {
+  align-items: center;
+  background: linear-gradient(135deg, #f0f5ff 0%, #ffffff 100%);
+  display: flex;
+  justify-content: center;
+  min-height: 100vh;
+  padding: 24px;
+}
+
+.demo-card {
+  max-width: 560px;
+  width: 100%;
+}
