@@ -1,6 +1,11 @@
 # backend-learn
 
-这是一个用于学习 Python 的最小标准项目骨架。
+这是一个用于学习 Python 后端和前端联调的项目骨架，包含：
+
+- FastAPI 健康检查接口
+- FastAPI + SQLAlchemy + MySQL 的 Product CRUD 示例
+- deepagents 风格的流式聊天接口，默认 mock，支持切换到 Kimi/Moonshot
+- React + Vite + Ant Design 前端页面
 
 ## 项目结构
 
@@ -8,8 +13,22 @@
 .
 ├── pyproject.toml
 ├── README.md
+├── docker-compose.yml
+├── frontend/
+│   └── src/
+│       ├── api/
+│       ├── pages/
+│       ├── App.tsx
+│       └── main.tsx
 ├── src/
 │   └── app/
+│       ├── agents/
+│       ├── core/
+│       ├── crud/
+│       ├── db/
+│       ├── models/
+│       ├── routers/
+│       ├── schemas/
 │       ├── __init__.py
 │       └── main.py
 └── tests/
@@ -17,6 +36,12 @@
 ```
 
 ## 本地运行
+
+复制后端环境变量示例：
+
+```bash
+cp .env.example .env
+```
 
 创建虚拟环境：
 
@@ -36,6 +61,18 @@ source .venv/Scripts/activate
 pip install -e ".[dev]"
 ```
 
+如果你本地还没有 MySQL，推荐先安装 Docker Desktop，然后启动项目自带的 MySQL：
+
+```bash
+docker compose up -d mysql
+```
+
+默认连接串在 `.env.example` 中：
+
+```text
+DATABASE_URL=mysql+pymysql://app_user:app_password@127.0.0.1:3306/backend_learn
+```
+
 启动 FastAPI 服务：
 
 ```bash
@@ -46,12 +83,37 @@ app
 
 ```text
 http://127.0.0.1:8000/
+http://127.0.0.1:8000/docs
 ```
 
-交互式接口文档：
+启动前端：
+
+```bash
+cd frontend
+npm install
+npm run dev
+```
+
+前端页面：
 
 ```text
-http://127.0.0.1:8000/docs
+http://127.0.0.1:5173/
+http://127.0.0.1:5173/crud
+http://127.0.0.1:5173/agent-chat
+```
+
+## Kimi 配置
+
+默认 `.env` 中 `AGENT_MODE=mock`，聊天接口不会请求真实 LLM。
+
+拿到 Kimi/Moonshot Key 后，可以改成：
+
+```text
+AGENT_MODE=kimi
+MOONSHOT_API_KEY=你的 key
+KIMI_BASE_URL=https://api.moonshot.ai/v1
+KIMI_MODEL=kimi-k2.6
+KIMI_THINKING=disabled
 ```
 
 运行测试：

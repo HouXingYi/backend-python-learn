@@ -1,13 +1,70 @@
+.app-shell {
+  min-height: 100vh;
+}
+
+.app-header {
+  align-items: center;
+  display: flex;
+  gap: 32px;
+}
+
+.app-title {
+  color: #ffffff !important;
+  flex: 0 0 auto;
+  margin: 0 !important;
+}
+
+.app-content {
+  background: linear-gradient(135deg, #f0f5ff 0%, #ffffff 100%);
+}
+
 .page {
   align-items: center;
-  background: linear-gradient(135deg, #f0f5ff 0%, #ffffff 100%);
   display: flex;
   justify-content: center;
-  min-height: 100vh;
+  min-height: calc(100vh - 64px);
   padding: 24px;
 }
 
 .demo-card {
   max-width: 560px;
   width: 100%;
+}
+
+.content-page {
+  margin: 0 auto;
+  max-width: 1120px;
+  padding: 24px;
+}
+
+.full-width {
+  width: 100%;
+}
+
+.chat-list {
+  max-height: 55vh;
+  overflow: auto;
+}
+
+.chat-item {
+  border-block-end: 0 !important;
+  display: flex !important;
+}
+
+.chat-item-user {
+  justify-content: flex-end;
+}
+
+.chat-item-assistant,
+.chat-item-system {
+  justify-content: flex-start;
+}
+
+.chat-bubble {
+  max-width: min(720px, 85%);
+}
+
+.chat-content {
+  margin: 8px 0 0 !important;
+  white-space: pre-wrap;
 }
