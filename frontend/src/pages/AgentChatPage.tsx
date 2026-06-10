@@ -18,7 +18,7 @@ function AgentChatPage() {
       id: crypto.randomUUID(),
       role: "assistant",
       content:
-        "你好，我是 deepagents 聊天示例。当前默认使用 mock 流式回复，配置 Kimi key 后可切换真实模型。",
+        "你好，我是一个通用 AI 助手示例。你可以随便说点什么，我会尽量帮你梳理想法或给出下一步建议。",
     },
   ]);
   const [input, setInput] = useState("");
@@ -92,7 +92,7 @@ function AgentChatPage() {
           <Space direction="vertical" size="small">
             <Typography.Title level={2}>Deepagents 流式聊天</Typography.Title>
             <Typography.Text type="secondary">
-              后端通过 SSE 返回 token 流。默认 mock，可在 `.env` 中填入 Kimi/Moonshot 配置后切换真实调用。
+              后端通过 SSE 返回 token 流。默认 mock，可在 `.env` 中填入 LiteLLM 网关配置后切换真实调用。
             </Typography.Text>
           </Space>
 

@@ -4,7 +4,7 @@
 
 - FastAPI 健康检查接口
 - FastAPI + SQLAlchemy + MySQL 的 Product CRUD 示例
-- deepagents 风格的流式聊天接口，默认 mock，支持切换到 Kimi/Moonshot
+- deepagents 风格的流式聊天接口，默认 mock，支持切换到 LiteLLM 网关
 - React + Vite + Ant Design 前端页面
 
 ## 项目结构
@@ -131,19 +131,19 @@ http://127.0.0.1:5173/crud
 http://127.0.0.1:5173/agent-chat
 ```
 
-## Kimi 配置
+## LiteLLM 网关配置
 
 默认 `.env` 中 `AGENT_MODE=mock`，聊天接口不会请求真实 LLM。
 
-拿到 Kimi/Moonshot Key 后，可以改成：
+拿到 LiteLLM 网关 Key 后，可以改成：
 
 ```text
-AGENT_MODE=kimi
-MOONSHOT_API_KEY=你的 key
-KIMI_BASE_URL=https://api.moonshot.cn/v1
-KIMI_MODEL=kimi-k2.6
-KIMI_THINKING=disabled
-KIMI_TIMEOUT_SECONDS=20
+AGENT_MODE=litellm
+LITELLM_API_KEY=你的网关 key
+LITELLM_BASE_URL=https://llm-developer.fzzixun.com/v1
+LITELLM_MODEL_NAME=claude-sonnet-4-6
+LITELLM_THINKING=
+LITELLM_TIMEOUT_SECONDS=20
 ```
 
 运行测试：
