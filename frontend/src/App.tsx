@@ -21,6 +21,7 @@ function App() {
           Backend Python Learn
         </Typography.Title>
         <Menu
+          className="app-menu"
           theme="dark"
           mode="horizontal"
           selectedKeys={[location.pathname]}
