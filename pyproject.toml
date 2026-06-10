@@ -27,6 +27,7 @@ dev = [
 
 [project.scripts]
 app = "app.main:main"
+app-dev = "app.dev:main"
 
 [tool.setuptools.packages.find]
 where = ["src"]

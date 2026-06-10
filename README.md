@@ -73,7 +73,30 @@ docker compose up -d mysql
 DATABASE_URL=mysql+pymysql://app_user:app_password@127.0.0.1:3306/backend_learn
 ```
 
-启动 FastAPI 服务：
+首次启动前先安装前端依赖：
+
+```bash
+cd frontend
+npm install
+cd ..
+```
+
+推荐使用一键开发命令同时启动后端和前端：
+
+```bash
+app-dev
+```
+
+`app-dev` 会启动：
+
+- 后端：`http://127.0.0.1:8000`，使用 `uvicorn --reload` 支持热更新
+- 前端：`http://127.0.0.1:5173`
+
+按 `Ctrl+C` 会同时停止前端和后端。
+
+如果项目根目录没有 `.env`，`app-dev` 会默认使用本地 SQLite 文件 `dev.db`，方便不安装 MySQL/Docker 时也能运行 CRUD 示例。
+
+也可以只启动 FastAPI 服务：
 
 ```bash
 app
@@ -86,7 +109,7 @@ http://127.0.0.1:8000/
 http://127.0.0.1:8000/docs
 ```
 
-启动前端：
+只启动前端：
 
 ```bash
 cd frontend
