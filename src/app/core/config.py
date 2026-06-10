@@ -15,11 +15,15 @@ class Settings(BaseSettings):
     agent_mode: str = Field(default="mock", validation_alias="AGENT_MODE")
     moonshot_api_key: str | None = Field(default=None, validation_alias="MOONSHOT_API_KEY")
     kimi_base_url: str = Field(
-        default="https://api.moonshot.ai/v1",
+        default="https://api.moonshot.cn/v1",
         validation_alias="KIMI_BASE_URL",
     )
     kimi_model: str = Field(default="kimi-k2.6", validation_alias="KIMI_MODEL")
     kimi_thinking: str = Field(default="disabled", validation_alias="KIMI_THINKING")
+    kimi_timeout_seconds: float = Field(
+        default=20.0,
+        validation_alias="KIMI_TIMEOUT_SECONDS",
+    )
 
     model_config = SettingsConfigDict(
         env_file=".env",

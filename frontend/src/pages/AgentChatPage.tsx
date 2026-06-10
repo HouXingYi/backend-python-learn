@@ -26,10 +26,12 @@ function AgentChatPage() {
 
   const requestMessages = useMemo<ChatMessage[]>(
     () =>
-      messages.map(({ role, content }) => ({
-        role,
-        content,
-      })),
+      messages
+        .filter(({ content }) => content.trim().length > 0)
+        .map(({ role, content }) => ({
+          role,
+          content,
+        })),
     [messages],
   );
 

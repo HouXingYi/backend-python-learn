@@ -89,10 +89,16 @@ app-dev
 
 `app-dev` 会启动：
 
-- 后端：`http://127.0.0.1:8000`，使用 `uvicorn --reload` 支持热更新
+- 后端：默认 `http://127.0.0.1:8000`，使用 `uvicorn --reload` 支持热更新
 - 前端：`http://127.0.0.1:5173`
 
 按 `Ctrl+C` 会同时停止前端和后端。
+
+如果 `8000` 被旧进程占用，`app-dev` 会自动选择下一个可用端口，并把前端的 `VITE_API_BASE_URL` 指向这个端口。也可以手动指定：
+
+```bash
+BACKEND_PORT=8001 app-dev
+```
 
 如果项目根目录没有 `.env`，`app-dev` 会默认使用本地 SQLite 文件 `dev.db`，方便不安装 MySQL/Docker 时也能运行 CRUD 示例。
 
@@ -134,9 +140,10 @@ http://127.0.0.1:5173/agent-chat
 ```text
 AGENT_MODE=kimi
 MOONSHOT_API_KEY=你的 key
-KIMI_BASE_URL=https://api.moonshot.ai/v1
+KIMI_BASE_URL=https://api.moonshot.cn/v1
 KIMI_MODEL=kimi-k2.6
 KIMI_THINKING=disabled
+KIMI_TIMEOUT_SECONDS=20
 ```
 
 运行测试：

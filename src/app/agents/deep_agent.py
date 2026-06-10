@@ -56,6 +56,9 @@ async def _stream_kimi_reply(
         base_url=settings.kimi_base_url,
         model=settings.kimi_model,
         streaming=True,
+        timeout=settings.kimi_timeout_seconds,
+        max_retries=0,
+        stream_chunk_timeout=settings.kimi_timeout_seconds,
         extra_body={
             "thinking": {"type": settings.kimi_thinking},
         },
@@ -73,15 +76,23 @@ async def _stream_kimi_reply(
         ],
     }
 
-    for chunk in agent.stream(
+    stream = agent.stream(
         payload,
         stream_mode="messages",
         version="v2",
-    ):
-        token = _extract_token(chunk)
-        if token:
-            yield token
-        await asyncio.sleep(0)
+    )
+
+    try:
+        while True:
+            has_chunk, chunk = await asyncio.to_thread(_next_stream_chunk, stream)
+            if not has_chunk:
+                break
+
+            token = _extract_token(chunk)
+            if token:
+                yield token
+    except Exception as exc:
+        raise RuntimeError(_format_kimi_error(exc, settings)) from exc
 
 
 def _extract_token(chunk: object) -> str:
@@ -99,3 +110,30 @@ def _extract_token(chunk: object) -> str:
             return content
 
     return ""
+
+
+def _next_stream_chunk(stream: object) -> tuple[bool, object | None]:
+    try:
+        return True, next(stream)  # type: ignore[arg-type]
+    except StopIteration:
+        return False, None
+
+
+def _format_kimi_error(exc: Exception, settings: Settings) -> str:
+    message = str(exc)
+    lower_message = message.lower()
+
+    if "invalid authentication" in lower_message or "401" in lower_message:
+        return (
+            "Kimi API 认证失败：请检查 MOONSHOT_API_KEY 是否有效，"
+            f"并确认它和 KIMI_BASE_URL={settings.kimi_base_url} 属于同一个平台。"
+        )
+
+    if "timed out" in lower_message or "timeout" in lower_message:
+        return (
+            f"Kimi API 请求超时：当前地址 {settings.kimi_base_url} 在 "
+            f"{settings.kimi_timeout_seconds:g} 秒内没有响应。"
+            "请检查网络、代理、防火墙，或确认 KIMI_BASE_URL 是否与官网控制台一致。"
+        )
+
+    return f"Kimi API 请求失败：{message}"

@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import os
 import signal
+import socket
 import subprocess
 import sys
 import time
@@ -34,6 +35,39 @@ def _backend_env() -> dict[str, str]:
         env["DATABASE_URL"] = "sqlite:///./dev.db"
         print("[dev] No .env found; using SQLite database at ./dev.db.")
 
+    return env
+
+
+def _is_port_available(port: int) -> bool:
+    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
+        sock.settimeout(0.2)
+        if sock.connect_ex(("127.0.0.1", port)) == 0:
+            return False
+
+    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
+        try:
+            sock.bind(("127.0.0.1", port))
+        except OSError:
+            return False
+    return True
+
+
+def _select_backend_port() -> int:
+    preferred_port = int(os.environ.get("BACKEND_PORT", "8000"))
+    for port in range(preferred_port, preferred_port + 20):
+        if _is_port_available(port):
+            if port != preferred_port:
+                print(f"[dev] Port {preferred_port} is busy; using backend port {port}.")
+            return port
+
+    raise RuntimeError(
+        f"No available backend port found from {preferred_port} to {preferred_port + 19}.",
+    )
+
+
+def _frontend_env(backend_port: int) -> dict[str, str]:
+    env = os.environ.copy()
+    env["VITE_API_BASE_URL"] = f"http://127.0.0.1:{backend_port}"
     return env
 
 
@@ -105,6 +139,7 @@ def main() -> int:
         print(f"[dev] Frontend directory not found: {FRONTEND_DIR}", file=sys.stderr)
         return 1
 
+    backend_port = _select_backend_port()
     backend_command = [
         sys.executable,
         "-m",
@@ -113,7 +148,7 @@ def main() -> int:
         "--host",
         "127.0.0.1",
         "--port",
-        "8000",
+        str(backend_port),
         "--reload",
     ]
     frontend_command = [_npm_command(), "run", "dev", "--", "--host", "127.0.0.1"]
@@ -124,7 +159,15 @@ def main() -> int:
             ("backend", _start_process("backend", backend_command, ROOT_DIR, _backend_env()))
         )
         processes.append(
-            ("frontend", _start_process("frontend", frontend_command, FRONTEND_DIR))
+            (
+                "frontend",
+                _start_process(
+                    "frontend",
+                    frontend_command,
+                    FRONTEND_DIR,
+                    _frontend_env(backend_port),
+                ),
+            )
         )
 
         while True:
