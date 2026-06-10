@@ -89,12 +89,12 @@ function AgentChatPage() {
       {contextHolder}
       <Card>
         <Space direction="vertical" size="large" className="full-width">
-          <Space direction="vertical" size="small">
+          {/* <Space direction="vertical" size="small">
             <Typography.Title level={2}>Deepagents 流式聊天</Typography.Title>
             <Typography.Text type="secondary">
               后端通过 SSE 返回 token 流。默认 mock，可在 `.env` 中填入 LiteLLM 网关配置后切换真实调用。
             </Typography.Text>
-          </Space>
+          </Space> */}
 
           <List
             className="chat-list"
