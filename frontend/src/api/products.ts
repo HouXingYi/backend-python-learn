@@ -16,6 +16,10 @@ export type ProductInput = {
   stock: number;
 };
 
+type ErrorResponse = {
+  detail?: unknown;
+};
+
 async function request<T>(path: string, options?: RequestInit): Promise<T> {
   const response = await fetch(`${API_BASE_URL}${path}`, {
     headers: {
@@ -26,7 +30,7 @@ async function request<T>(path: string, options?: RequestInit): Promise<T> {
   });
 
   if (!response.ok) {
-    throw new Error(`请求失败：${response.status}`);
+    throw new Error(await getErrorMessage(response));
   }
 
   if (response.status === 204) {
@@ -34,6 +38,19 @@ async function request<T>(path: string, options?: RequestInit): Promise<T> {
   }
 
   return (await response.json()) as T;
+}
+
+async function getErrorMessage(response: Response): Promise<string> {
+  try {
+    const data = (await response.json()) as ErrorResponse;
+    if (typeof data.detail === "string") {
+      return data.detail;
+    }
+  } catch {
+    // Fall back to a status-only message when the backend returns non-JSON.
+  }
+
+  return `请求失败：${response.status}`;
 }
 
 export function listProducts(): Promise<Product[]> {

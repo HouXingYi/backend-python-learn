@@ -1,8 +1,11 @@
 from collections.abc import AsyncGenerator
 from contextlib import asynccontextmanager
+import logging
 
-from fastapi import FastAPI
+from fastapi import FastAPI, Request, status
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
+from sqlalchemy.exc import OperationalError
 
 from app.core.config import get_settings
 from app.db.session import create_db_and_tables
@@ -10,12 +13,19 @@ from app.routers import agent, products
 
 
 settings = get_settings()
+logger = logging.getLogger(__name__)
+DATABASE_UNAVAILABLE_MESSAGE = (
+    "数据库暂时不可用，请确认 MySQL 已启动：docker compose up -d mysql"
+)
 
 
 @asynccontextmanager
 async def lifespan(_: FastAPI) -> AsyncGenerator[None, None]:
     if settings.auto_create_tables:
-        create_db_and_tables()
+        try:
+            create_db_and_tables()
+        except OperationalError as exc:
+            log_database_unavailable(exc)
     yield
 
 
@@ -28,6 +38,22 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+
+@app.exception_handler(OperationalError)
+async def handle_database_error(
+    _: Request,
+    exc: OperationalError,
+) -> JSONResponse:
+    log_database_unavailable(exc)
+    return JSONResponse(
+        status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+        content={"detail": DATABASE_UNAVAILABLE_MESSAGE},
+    )
+
+
+def log_database_unavailable(exc: OperationalError) -> None:
+    logger.warning("Database is unavailable: %s", exc.orig)
 
 
 def greet(name: str = "Python") -> str:
