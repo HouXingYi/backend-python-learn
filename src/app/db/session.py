@@ -1,6 +1,6 @@
 from collections.abc import Generator
 
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, inspect, text
 from sqlalchemy.orm import DeclarativeBase, Session, sessionmaker
 from sqlalchemy.pool import StaticPool
 
@@ -30,10 +30,27 @@ engine = create_engine(
     pool_pre_ping=True,
     **_pool_options(settings.database_url),
 )
-SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+SessionLocal = sessionmaker(
+    autocommit=False,
+    autoflush=False,
+    bind=engine,
+    expire_on_commit=False,
+)
 
 
 def get_db() -> Generator[Session, None, None]:
+    yield from _session_scope()
+
+
+def get_read_db() -> Generator[Session, None, None]:
+    yield from _session_scope()
+
+
+def get_write_db() -> Generator[Session, None, None]:
+    yield from _session_scope()
+
+
+def _session_scope() -> Generator[Session, None, None]:
     db = SessionLocal()
     try:
         yield db
@@ -45,3 +62,17 @@ def create_db_and_tables() -> None:
     from app.models import product  # noqa: F401
 
     Base.metadata.create_all(bind=engine)
+    _ensure_product_schema()
+
+
+def _ensure_product_schema() -> None:
+    with engine.begin() as connection:
+        inspector = inspect(connection)
+        if not inspector.has_table("products"):
+            return
+
+        columns = {column["name"] for column in inspector.get_columns("products")}
+        if "is_deleted" not in columns:
+            connection.execute(
+                text("ALTER TABLE products ADD COLUMN is_deleted INTEGER NOT NULL DEFAULT 0")
+            )

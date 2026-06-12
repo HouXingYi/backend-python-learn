@@ -77,7 +77,7 @@ def test_database_error_returns_service_unavailable(
     def raise_database_error(*_: object, **__: object) -> None:
         raise OperationalError("SELECT 1", {}, ConnectionRefusedError("refused"))
 
-    monkeypatch.setattr(products_crud, "list_products", raise_database_error)
+    monkeypatch.setattr(products_crud.ProductCrud, "list_products", raise_database_error)
 
     response = client.get("/api/products")
 
